@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AESTHRELLAN GRIP STATUS METER</title>
+    <style>
+        :root {
+            --crimson: #990000;
+            --crimson-light: #dc143c;
+            --white: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(153, 0, 0, 0.15);
+            --text-main: #2b0000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            background-color: darkred;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* Decorative Background Orbs for Glassmorphism Effect */
+        .bg-orb-1 {
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, var(--crimson-light) 0%, transparent 70%);
+            opacity: 0.25;
+            filter: blur(60px);
+            z-index: -1;
+        }
+        
+        .bg-orb-2 {
+            position: fixed;
+            bottom: -15%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, var(--crimson) 0%, transparent 70%);
+            opacity: 0.25;
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(153, 0, 0, 0.05);
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            color: var(--crimson);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        .intro {
+            font-size: 0.95rem;
+            text-align: justify;
+            margin-bottom: 25px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .calculator-section {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .calculator-section h2 {
+            font-size: 1.15rem;
+            color: var(--crimson);
+            margin-bottom: 8px;
+        }
+        
+        .calculator-section p {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group input {
+            font-family: 'Times New Roman', Times, serif;
+            width: 120px;
+            font-size: 1.4rem;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--crimson-light);
+            border-radius: 10px;
+            color: var(--crimson);
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .input-group input:focus {
+            background: var(--white);
+            box-shadow: 0 0 15px rgba(220, 20, 60, 0.2), inset 0 2px 4px rgba(0,0,0,0.05);
+            border-color: var(--crimson);
+        }
+
+        #result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(153, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--white);
+            border-radius: 12px;
+            display: none;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(153, 0, 0, 0.3);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #result-box h3 {
+            font-size: 1.05rem;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-weight: normal;
+            letter-spacing: 0.5px;
+        }
+
+        #result-box ul {
+            list-style-type: square;
+            margin-left: 20px;
+            font-size: 0.9rem;
+        }
+
+        #result-box li {
+            margin-bottom: 6px;
+        }
+
+        .alliances-section {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .alliances-section h3 {
+            font-size: 1.05rem;
+            color: var(--crimson);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .alliance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .alliance-card {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .alliance-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(153, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .alliance-card .name {
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: var(--crimson);
+        }
+
+        .alliance-card .score {
+            font-size: 0.8rem;
+            color: var(--crimson-light);
+            background: rgba(220, 20, 60, 0.08);
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(220, 20, 60, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            header h1 { font-size: 1.15rem; }
+            .content { padding: 15px; }
+            .calculator-section { padding: 15px; }
+            .alliance-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-orb-1"></div>
+<div class="bg-orb-2"></div>
+
+<div class="container">
+    <header>
+        <h1>Aesthrellan Grip Status Meter of Alliance</h1>
+        <p><strong>(AMATRIX)</strong> | Revised as of June 28, 2026</p>
+    </header>
+
+    <div class="content">
+        <div class="intro">
+            <p>The <strong>Aesthrellan Grip Status Meter on Alliance (AMATRIX)</strong> is the formal evaluation matrix used by the People's Republic of Aesthrella to measure the proximity, reliability, and ideological alignment of its allied micronations. Because Aesthrella is strictly committed to peaceful diplomacy, the scale measures alignment based on anti-war compliance, rendering the most aggressive, pro-war states as the farthest removed from the republic.</p>
+        </div>
+
+        <div class="calculator-section">
+            <h2>Alliance Grip Analyzer</h2>
+            <p>Enter the micronation's alliance score (-100 to +100) below to automatically identify their classification.</p>
+            
+            <div class="input-group">
+                <input type="number" id="scoreInput" min="-100" max="100" placeholder="0" oninput="calculateGrip()">
+            </div>
+
+            <div id="result-box">
+                <h3 id="result-title">Level</h3>
+                <ul id="result-traits"></ul>
+            </div>
+        </div>
+
+        <div class="alliances-section">
+            <h3>Current Grip Status of Allied Micronations</h3>
+            <div class="alliance-grid">
+                <div class="alliance-card"><span class="name">State Republic of Maharlika</span><span class="score">Moderate (+46)</span></div>
+                <div class="alliance-card"><span class="name">United States of Aurelia</span><span class="score">Tight (+88)</span></div>
+                <div class="alliance-card"><span class="name">United Kingdom of Hesminia</span><span class="score">Moderate (+50)</span></div>
+                <div class="alliance-card"><span class="name">Sovereign Kingdom of Dahlia</span><span class="score">Tight (+87)</span></div>
+                <div class="alliance-card"><span class="name">Federation of Antales</span><span class="score">Moderate (+31)</span></div>
+                <div class="alliance-card"><span class="name">Federal Republic of Athenia</span><span class="score">Weak (+23)</span></div>
+                <div class="alliance-card"><span class="name">Sazist People's Republic of Colartian</span><span class="score">Moderate (+50)</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const database = {
+        level1: {
+            title: "LEVEL I. VERY WEAK GRIP (-100 to -1)",
+            traits: [
+                "They have no formal talks with Aesthrella.",
+                "They refuse to answer messages for two months.",
+                "They publicly denounce Aesthrella.",
+                "They break active non-aggression pacts entirely.",
+                "They actively choose war of any kind.",
+                "They resort to military force over peaceful discussion.",
+                "They created no joint cooperations with Aesthrella.",
+                "Have complete hate towards Aesthrella.",
+                "Their government had great internal conflicts and rebellions.",
+                "They have a weakest and almost impossible to create formal system of governance.",
+                "Important positions such as Heads of State are vacant."
+            ]
+        },
+        level2: {
+            title: "LEVEL II. WEAK GRIP (0 to +30)",
+            traits: [
+                "They only reply when Aesthrella messages them first.",
+                "They isolate their community from Aesthrellans.",
+                "They engage in hostile political arguments with neighbors.",
+                "They let existing treaties expire without renewal.",
+                "They withdraw from shared administrative projects.",
+                "They disrespect other micronations.",
+                "Have a bit hate towards Aesthrella.",
+                "They have a slightly weak and informalized system of governance.",
+                "Important positions such as Heads of State are vacant."
+            ]
+        },
+        level3: {
+            title: "LEVEL III. MODERATE GRIP (+31 to +75)",
+            traits: [
+                "They attend scheduled meetings as defined.",
+                "They respect Aesthrella's laws and values.",
+                "They sign standard peace and trade treaties.",
+                "They maintain a strictly neutral international stance.",
+                "They pledged to protect Aesthrella.",
+                "They're committed to collaborating with Aesthrella.",
+                "Their government is formalized."
+            ]
+        },
+        level4: {
+            title: "LEVEL IV. TIGHT GRIP (+76 to +100)",
+            traits: [
+                "They talk to the Aesthrellan government every day.",
+                "They merge their communities and citizenries completely.",
+                "They strictly enforce all anti-war pacts.",
+                "They pledged to protect Aesthrella at all costs.",
+                "They resolve every single conflict through peaceful diplomacy.",
+                "They're deeply collaborated with Aesthrella in all kinds of projects, in all fields.",
+                "They deeply maintained a proper decorum.",
+                "Zero hate towards each other. Treated like a family.",
+                "Has good and formalized system of governance."
+            ]
+        }
+    };
+
+    function calculateGrip() {
+        const input = document.getElementById('scoreInput').value;
+        const resultBox = document.getElementById('result-box');
+        const resultTitle = document.getElementById('result-title');
+        const resultTraits = document.getElementById('result-traits');
+
+        if (input === "") {
+            resultBox.style.display = 'none';
+            return;
+        }
+
+        const score = parseInt(input);
+        let activeLevel = null;
+
+        if (score >= -100 && score <= -1) {
+            activeLevel = database.level1;
+        } else if (score >= 0 && score <= 30) {
+            activeLevel = database.level2;
+        } else if (score >= 31 && score <= 75) {
+            activeLevel = database.level3;
+        } else if (score >= 76 && score <= 100) {
+            activeLevel = database.level4;
+        }
+
+        if (activeLevel) {
+            resultBox.style.display = 'block';
+            resultTitle.textContent = activeLevel.title;
+            
+            resultTraits.innerHTML = '';
+            
+            activeLevel.traits.forEach(trait => {
+                const li = document.createElement('li');
+                li.textContent = trait;
+                resultTraits.appendChild(li);
+            });
+        } else {
+            resultBox.style.display = 'block';
+            resultTitle.textContent = "INVALID SCORE";
+            resultTraits.innerHTML = '<li>Please enter a valid AMATRIX score between -100 and +100.</li>';
+        }
+    }
+</script>
+</body>
+</html>
